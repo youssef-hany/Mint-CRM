@@ -1,0 +1,88 @@
+.trans-02 {
+	transition: all 0.2s ease-in-out;
+}
+.trans-03 {
+	transition: all 0.3s ease-in-out;
+}
+.trans-04 {
+	transition: all 0.4s ease-in-out;
+}
+.trans-05 {
+	transition: all 0.5s ease-in-out !important;
+}
+.Nav-bar {
+	z-index: 999;
+}
+.myNav {
+	min-height: 78px;
+	z-index: 999;
+}
+.contact {
+	margin-left: 77rem;
+}
+
+.toggler {
+	z-index: 999;
+}
+
+.HospitalName {
+	width: 15%;
+}
+.hospitalName {
+	padding-right: 0 !important;
+	padding-left: 8px !important;
+	padding-bottom: 3.2px !important;
+	padding-top: 6px !important;
+	margin-bottom: 8px !important;
+	letter-spacing: 1rem;
+	font-size: 1.2rem;
+	background: transparent;
+	border-radius: 0.5rem;
+	cursor: pointer;
+	transition: all 0.5s ease-in-out;
+}
+.Btn {
+	text-transform: capitalize;
+	font-size: 1.2rem;
+	background: transparent;
+	border: 0.05rem solid;
+	border-color: #007bff;
+	color: #007bff;
+	border-radius: 0.5rem;
+	cursor: pointer;
+	transition: all 0.5s ease-in-out;
+}
+.updateButton {
+	transition: all 1s ease-in-out;
+	font-size: 1.7rem;
+	border-radius: 0.5rem;
+	margin-right: 15rem;
+}
+.Btn:hover {
+	background: #007bff;
+	color: #2a2a72;
+}
+.updaterLoader {
+	position: absolute;
+	top: 1.8rem;
+	margin-left: 4rem;
+}
+.Btn:focus {
+	outline: none;
+}
+.accountIcon {
+	margin: 0 !important;
+	padding: 0 !important;
+	width: 8rem !important;
+}
+
+@media screen and (max-width: 991px) {
+	.HospitalName {
+		width: 100% !important;
+		position: absolute;
+		top: 0;
+		margin-left: 0rem;
+		padding-left: 0rem;
+		padding-right: 2rem;
+	}
+}
