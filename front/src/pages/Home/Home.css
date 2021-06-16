@@ -1,0 +1,7 @@
+.inputField {
+	width: 21%;
+}
+.alertContainer {
+	position: fixed;
+	z-index: 999;
+}

@@ -22,7 +22,7 @@ var PostgreReqVersion
     !define MUI_PAGE_HEADER_TEXT "Welcome to Mint CRM"
     !define MUI_PAGE_HEADER_SUBTEXT "This software is developed for Mint Cleaning Services as a CRM solution. By Youssef Hany Aref. Please read the Lisence."
      
-Page custom nsDialogsPage nsDialogsPageLeave
+Page custom nsDialogsPage 
 
 Function nsDialogsPage
     

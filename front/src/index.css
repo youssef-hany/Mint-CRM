@@ -1,13 +1,72 @@
 body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+	margin: 0;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
+		"Droid Sans", "Helvetica Neue", sans-serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	-ms-overflow-style: none; /* IE and Edge */
+	scrollbar-width: none; /* Firefox */
 }
-
+body::-webkit-scrollbar {
+	display: none;
+}
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+	font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+.Font-Lighter {
+	font-weight: lighter !important;
+}
+.Font-Smaller {
+	font-size: smaller;
+}
+.Font-Bolder {
+	font-weight: bolder;
+}
+.Capitalize {
+	text-transform: capitalize;
+}
+.LightBlue {
+	color: #9bb7d4;
+}
+.FrenchBlue {
+	color: #0072b5;
+}
+.LightFrenchBlue {
+	color: #0073b58e;
+}
+.Violet {
+	color: #6b5b9580;
+}
+.MintGreen {
+	color: #00a170;
+}
+.Lightgreen {
+	color: #88b04b;
+}
+.LighterGreen {
+	color: #a0daa9;
+}
+.Green {
+	color: #adf83c;
+}
+.Cyan {
+	color: #56c6a9;
+}
+.Gray {
+	color: #939597;
+}
+.Yellow {
+	color: #f5df4d;
+}
+.company-button {
+	color: white;
+	background-color: #ff8c00;
+	border-color: #ff8c0071;
+}
+.company-button:hover {
+	background-color: #d37400;
+	border-color: #ff8c0071;
+}
+.company-button:focus {
+	box-shadow: 0 0 0 0.2rem rgba(255, 153, 0, 0.25);
 }

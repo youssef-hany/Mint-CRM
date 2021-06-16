@@ -12,12 +12,10 @@ import NotificationService, {
 	APP_IS_DOWNLOADING,
 } from "../../tools/notification-service";
 import DataService from "../../tools/data-service";
-import HttpService from "../../tools/http-service/http-service";
 import Loader from "react-loader-spinner";
 
 let ns = new NotificationService();
 let ds = new DataService();
-let httpService = new HttpService();
 
 export default class Navbar extends Component {
 	_isMounted = false;
@@ -254,20 +252,12 @@ export default class Navbar extends Component {
 											data-toggle="collapse"
 											data-target="#navbarTogglerDemo01"
 										>
-											{true ? (
-												<Link to="/profile" className="login ml-auto">
-													<button className="Btn ">
-														<i className="far fa-user p-1 accountIcon" />
-														<div>Dashboard</div>
-													</button>
-												</Link>
-											) : (
-												<React.Fragment>
-													<Link to="/login" className="navbar-brand login btn btn-outline-secondary">
-														Login
-													</Link>
-												</React.Fragment>
-											)}
+											<Link to="/schedule" className="login ml-auto">
+												<button className="Btn ">
+													<i className="far fa-user p-1 accountIcon" />
+													<div>Schedule</div>
+												</button>
+											</Link>
 										</li>
 									</ul>
 								</div> */}

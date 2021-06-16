@@ -12,6 +12,7 @@ const hpath = `${hdir}/hospital_name.json`;
 
 let isUpdating = false;
 let interval0 = "";
+var closing = false;
 function createWindow() {
 	let startedDownload = false;
 	let finishedDownload = false;
@@ -29,6 +30,8 @@ function createWindow() {
 			nodeIntegration: false,
 			enableRemoteModule: true,
 			preload: __dirname + "/preload.js",
+			// worldSafeExecuteJavaScript: true,
+			// contextIsolation: true,
 		},
 	});
 
@@ -113,12 +116,15 @@ function createWindow() {
 				state: state,
 				object: Obj,
 			};
-			win.webContents.send("message", status);
+			if (!closing) {
+				win.webContents.send("message", status);
+			}
 		}
 	};
 	//for windows shutdown but is bugged in electron itself check docs.
 	win.on("session-end", () => {
 		if (interval0) {
+			closing = true;
 			isUpdating = true;
 			clearInterval(interval0);
 			interval0 = "";
@@ -133,6 +139,7 @@ function createWindow() {
 	// //Process on exit
 	process.on("exit", () => {
 		if (interval0) {
+			closing = true;
 			isUpdating = true;
 			clearInterval(interval0);
 			interval0 = "";
@@ -148,6 +155,7 @@ function createWindow() {
 	// //Exit on SIGINT
 	process.on("SIGINT", () => {
 		if (interval0) {
+			closing = true;
 			isUpdating = true;
 			clearInterval(interval0);
 			interval0 = "";
@@ -163,6 +171,7 @@ function createWindow() {
 	// //For linux and macOS
 	powerMonitor.on("shutdown", () => {
 		if (interval0) {
+			closing = true;
 			isUpdating = true;
 			clearInterval(interval0);
 			interval0 = "";
@@ -176,6 +185,7 @@ function createWindow() {
 	});
 	app.on("will-quit", () => {
 		if (interval0) {
+			closing = true;
 			isUpdating = true;
 			clearInterval(interval0);
 			interval0 = "";
@@ -393,7 +403,8 @@ app.on("activate", () => {
 });
 
 app.on("ready", () => {
-	process.env.GH_TOKEN = "60a75d07ea85a1e18a37075c69e69fcf56f261a1";
+	process.env.GH_TOKEN = "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";
+	log.info("ready now...");
 	checkForUpdates();
 	interval0 = setInterval(checkForUpdates, 10000);
 });
