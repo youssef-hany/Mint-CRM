@@ -26,6 +26,18 @@ class HttpService {
 		});
 		return promise;
 	};
+	GetCosts = () => {
+		var promise = new Promise((resolve, reject) => {
+			fetch(`http://${ipaddress}:${port}/getCosts`)
+				.then((response) => {
+					resolve(response.json());
+				})
+				.catch((err) => {
+					reject(err);
+				});
+		});
+		return promise;
+	};
 
 	GetCustomers = () => {
 		var promise = new Promise((resolve, reject) => {

@@ -68,3 +68,12 @@ export const updateCost = (data) => {
 			return response.data;
 		});
 };
+export const addNewCost = (data) => {
+	return axios
+		.post(`http://${ipaddress}:${port}/addNewCost`, {
+			data: data,
+		})
+		.then((response) => {
+			return response.data;
+		});
+};

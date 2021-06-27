@@ -8,6 +8,7 @@ import {
 	uploadPDF,
 	removePDF,
 	updateCost,
+	addNewCost,
 } from "../../tools/functions";
 import HttpService from "../../tools/http-service/http-service";
 import "./Home.css";
@@ -15,6 +16,7 @@ import { ScheduleComponent, Inject, Day, Week, WorkWeek, Month, Agenda } from "@
 import { DataManager, WebApiAdaptor } from "@syncfusion/ej2-data";
 import Customers from "./Customers/Customers";
 import PreviousOrders from "./PreviousOrders/PreviousOrders";
+import ManageCosts from "./ManageCosts/ManageCosts";
 import NewOrders from "./NewOrders/NewOrders";
 
 let httpService = new HttpService();
@@ -47,6 +49,10 @@ export class Home extends Component {
 			inputPrice: "",
 			tableCost: "",
 			orderCustomer: {},
+			costName: "",
+			costDate: "",
+			costQuantity: "",
+			costAmount: "",
 			appointments: [
 				// {
 				// 	Id: 3,
@@ -80,6 +86,7 @@ export class Home extends Component {
 		this.UploadPDF = this.UploadPDF.bind(this);
 		this.RemovePDF = this.RemovePDF.bind(this);
 		this.handleFile = this.handleFile.bind(this);
+		this.GetCosts = this.GetCosts.bind(this);
 	}
 
 	componentDidMount() {
@@ -87,6 +94,7 @@ export class Home extends Component {
 		if (this._isMounted) {
 			this.GetAllOrders();
 			this.GetAllCustomers();
+			this.GetCosts();
 		}
 	}
 	componentWillUnmount() {
@@ -110,6 +118,7 @@ export class Home extends Component {
 	setendTime = (e) => {
 		this.setState({ endTime: e });
 	};
+
 	AddOrder = (e) => {
 		this.setState({ load: true });
 		let location_id = "";
@@ -120,7 +129,6 @@ export class Home extends Component {
 				}
 			});
 		}
-		console.log(location_id);
 		let data = {
 			name: this.state.name,
 			phone: this.state.orderCustomer.phone,
@@ -132,20 +140,43 @@ export class Home extends Component {
 			endTime: this.state.endTime,
 		};
 		if (
+			this.state.name &&
+			this.state.date &&
+			this.state.inputSize &&
+			this.state.inputPrice &&
+			this.state.startTime &&
+			this.state.endTime &&
+			!this.state.orderCustomer.phone
+		) {
+			e.preventDefault();
+			this.setState(
+				{ load: false, error: "[F] Please Add customer " + this.state.name + " before adding order" },
+				() => {
+					window.setTimeout(() => {
+						this.setState({ error: "", success: "" });
+					}, 8000);
+				}
+			);
+			return;
+		}
+		if (
 			!this.state.name ||
 			!this.state.orderCustomer.phone ||
 			!this.state.date ||
-			!this.state.location_id ||
+			!location_id ||
 			!this.state.inputSize ||
 			!this.state.inputPrice ||
 			!this.state.startTime ||
 			!this.state.endTime
 		) {
+			e.preventDefault();
 			this.setState({ load: false, error: "[F] Please fill out all the fields to submit!" }, () => {
 				window.setTimeout(() => {
 					this.setState({ error: "", success: "" });
 				}, 8000);
 			});
+			console.log(this.state.orderCustomer.phone);
+
 			return;
 		}
 		postOrder(data).then((response) => {
@@ -300,6 +331,66 @@ export class Home extends Component {
 		});
 		return promise;
 	};
+
+	AddNewCost = (e) => {
+		this.setState({ load: true });
+		e.preventDefault();
+		let data = {
+			name: this.state.costName,
+			date: this.state.costDate,
+			quantity: this.state.costQuantity,
+			cost: this.state.costAmount,
+		};
+		var promise = new Promise((resolve, reject) => {
+			addNewCost(data).then((response) => {
+				if (response) {
+					if (response.success) {
+						this.GetCosts();
+						this.setState(
+							{
+								success: response.success,
+								costName: "",
+								costDate: "",
+								costQuantity: "",
+								costAmount: "",
+								load: false,
+							},
+							() => {
+								window.setTimeout(() => {
+									this.setState({ error: "", success: "" });
+								}, 6000);
+							}
+						);
+						resolve(response.success);
+					} else {
+						if (response.error) {
+							this.setState(
+								{
+									error: response.error,
+									load: false,
+								},
+								() => {
+									window.setTimeout(() => {
+										this.setState({ error: "", success: "" });
+									}, 8000);
+								}
+							);
+							resolve(response.error);
+						}
+					}
+				} else {
+					this.setState({
+						load: false,
+						error: "[F] No response from server database",
+					});
+					console.log("No Response from server");
+					resolve({ error: "[F] No response from server database" });
+				}
+			});
+		});
+		return promise;
+	};
+
 	GetCustomerLocations = (customer_id) => {
 		var promise = new Promise((resolve, reject) => {
 			this.setState({ customerLocations: [] });
@@ -501,26 +592,43 @@ export class Home extends Component {
 		});
 	};
 	GetAllCustomers = () => {
+		this.setState({ load: true });
+
 		httpService.GetCustomers().then((data) => {
 			if (this._isMounted) {
 				this.setState({
 					allCustomers: data.customers,
+					load: false,
 				});
 			}
 		});
 	};
 
 	GetAllOrders = () => {
+		this.setState({ load: true });
+
 		httpService.GetOrders().then((data) => {
 			if (this._isMounted) {
 				this.setState({
 					allOrders: data.orders,
+					load: false,
+				});
+			}
+		});
+	};
+	GetCosts = () => {
+		this.setState({ load: true });
+		httpService.GetCosts().then((data) => {
+			if (this._isMounted) {
+				this.setState({
+					allCosts: data.costs,
+					load: false,
 				});
 			}
 		});
 	};
 	render() {
-		const { allOrders } = this.state;
+		const { allOrders, allCosts } = this.state;
 		return (
 			<div>
 				<div className="container row mx-auto">
@@ -599,6 +707,17 @@ export class Home extends Component {
 									aria-selected="false"
 								>
 									Customers
+								</a>
+								<a
+									className="nav-item nav-link"
+									id="nav-mngcost-tab"
+									data-toggle="tab"
+									href="#nav-mngcost"
+									role="tab"
+									aria-controls="nav-mngcost"
+									aria-selected="false"
+								>
+									Manage Costs
 								</a>
 							</div>
 						</nav>
@@ -691,6 +810,18 @@ export class Home extends Component {
 									AddCustomerLocation={this.AddCustomerLocation}
 									UploadPDF={this.UploadPDF}
 									RemovePDF={this.RemovePDF}
+								/>
+							</div>
+							<div className="tab-pane fade" id="nav-mngcost" role="tabpanel" aria-labelledby="nav-mngcost-tab">
+								{/* Manage Costs */}
+								<ManageCosts
+									onChange={this.onChange}
+									AddNewCost={this.AddNewCost}
+									allCosts={allCosts}
+									costName={this.state.costName}
+									costDate={this.state.costDate}
+									costQuantity={this.state.costQuantity}
+									costAmount={this.state.costAmount}
 								/>
 							</div>
 						</div>

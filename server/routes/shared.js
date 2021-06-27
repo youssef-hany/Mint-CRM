@@ -243,7 +243,6 @@ router.post("/postOrder", (req, res) => {
 						phone: phone,
 						date: date,
 						location_id,
-						location_id,
 						size: size,
 						price: price,
 						start_time: startTime,
@@ -320,6 +319,49 @@ router.get("/getorders", (req, res) => {
 		})
 		.catch((err) => {
 			res.json({ error: "[SE:1] Error in Table, orders" });
+			console.log(err);
+		});
+});
+
+router.post("/addNewCost", (req, res) => {
+	const name = req.body.data.name;
+	const date = req.body.data.date;
+	const quantity = req.body.data.quantity;
+	const cost = req.body.data.cost;
+
+	db("costs")
+		.insert({
+			name: name,
+			date: date,
+			quantity: quantity,
+			cost: cost,
+		})
+		.then((result) => {
+			if (result) {
+				if (result) {
+					res.status(200);
+					console.log("New Cost " + name + " submitted for ");
+					res.send({ success: "New Cost " + name + " submitted for " });
+				} else {
+					res.status(404);
+					res.send({ error: "[S:1] Could not add Cost!" });
+				}
+			}
+		});
+});
+router.get("/getCosts", (req, res) => {
+	db.select("*")
+		.from("costs")
+		.orderBy("id", "asc")
+		.then((result) => {
+			if (result) {
+				res.json({ success: true, costs: result });
+			} else {
+				res.json({ error: "[SE:1] costs not found" });
+			}
+		})
+		.catch((err) => {
+			res.json({ error: "[SE:1] Error in Table, costs" });
 			console.log(err);
 		});
 });
