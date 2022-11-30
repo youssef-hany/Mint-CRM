@@ -27,6 +27,7 @@ services:
       DB_USER: "${DB_USER}"
       DB_PASSWORD: "${DB_PASS}"
       DB_NAME: "${DB_NAME}"
+      NODE_ENV: production
     ports:
       - "3005:3005"
     depends_on:

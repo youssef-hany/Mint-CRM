@@ -10,8 +10,6 @@ const db = require("./tools/database");
 //5Z30TZ1 accountant's pc
 //CZC719784L ServerPC IVH
 
-process.env.NODE_ENV = "production";
-
 const LPORT = 3005;
 const app = express();
 
