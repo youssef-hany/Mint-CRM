@@ -20,9 +20,7 @@ services:
     networks:
       - app-network
   backend:
-    build: ./server/
-    volumes:
-      - "./server:/server"
+    build: ./server
     environment:
       DB_HOST: db
       DB_PORT: "${DB_PORT}"
