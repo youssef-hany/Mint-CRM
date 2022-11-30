@@ -1,0 +1,15 @@
+.removePdfForm {
+	justify-content: space-between !important;
+}
+.pointerContainer {
+	cursor: pointer;
+}
+.inputCost {
+	width: 100%;
+}
+.costCol {
+	width: 8%;
+}
+.textAreaLoc {
+	max-height: 2.7rem;
+}

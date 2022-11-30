@@ -26,6 +26,19 @@ class HttpService {
 		});
 		return promise;
 	};
+	GetLocations = () => {
+		var promise = new Promise((resolve, reject) => {
+			fetch(`http://${ipaddress}:${port}/getlocations`)
+				.then((response) => {
+					resolve(response.json());
+				})
+				.catch((err) => {
+					reject(err);
+				});
+		});
+		return promise;
+	};
+
 	GetCosts = () => {
 		var promise = new Promise((resolve, reject) => {
 			fetch(`http://${ipaddress}:${port}/getCosts`)
@@ -42,6 +55,68 @@ class HttpService {
 	GetCustomers = () => {
 		var promise = new Promise((resolve, reject) => {
 			fetch(`http://${ipaddress}:${port}/getCustomers`)
+				.then((response) => {
+					resolve(response.json());
+				})
+				.catch((err) => {
+					reject(err);
+				});
+		});
+		return promise;
+	};
+
+	GetEmployee = ({ id }) => {
+		var promise = new Promise((resolve, reject) => {
+			fetch(`http://${ipaddress}:${port}/GetEmployee/${id}`)
+				.then((response) => {
+					resolve(response.json());
+				})
+				.catch((err) => {
+					reject(err);
+				});
+		});
+		return promise;
+	};
+	GetWharehouseItem = ({ id }) => {
+		var promise = new Promise((resolve, reject) => {
+			fetch(`http://${ipaddress}:${port}/GetWharehouseItem/${id}`)
+				.then((response) => {
+					resolve(response.json());
+				})
+				.catch((err) => {
+					reject(err);
+				});
+		});
+		return promise;
+	};
+	GetWharehouse = () => {
+		var promise = new Promise((resolve, reject) => {
+			fetch(`http://${ipaddress}:${port}/getWharehouse`)
+				.then((response) => {
+					resolve(response.json());
+				})
+				.catch((err) => {
+					reject(err);
+				});
+		});
+		return promise;
+	};
+	GetEmployeePeriods = ({ id }) => {
+		var promise = new Promise((resolve, reject) => {
+			fetch(`http://${ipaddress}:${port}/GetEmployeePeriods/${id}`)
+				.then((response) => {
+					resolve(response.json());
+				})
+				.catch((err) => {
+					reject(err);
+				});
+		});
+		return promise;
+	};
+
+	GetEmployees = () => {
+		var promise = new Promise((resolve, reject) => {
+			fetch(`http://${ipaddress}:${port}/GetEmployees`)
 				.then((response) => {
 					resolve(response.json());
 				})

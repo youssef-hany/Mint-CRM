@@ -6,6 +6,8 @@ import "./App.css";
 import Navbar from "./components/Navbar/Navbar";
 import DataService from "./tools/data-service";
 import { useHistory } from "react-router";
+import Employee from "./pages/Home/Employee/Employee";
+import WharehouseItem from "./pages/Home/WharehouseItem/WharehouseItem";
 let ds = new DataService();
 
 function App() {
@@ -28,93 +30,97 @@ function App() {
 	});
 	const [updateState, setUpdateState] = useState(true);
 
-	window.ipcRenderer.on("message", function (event, obj) {
-		if (obj) {
-			if (obj.text) {
-				console.log(`Message from updater: ${obj.text}`);
+	try {
+		window.ipcRenderer.on("message", function (event, obj) {
+			if (obj) {
+				if (obj.text) {
+					console.log(`Message from updater: ${obj.text}`);
+				}
+				switch (obj.state) {
+					case "app-start":
+						console.log("starting...");
+						setUpdateStatus("Starting...");
+
+						break;
+					case "checking":
+						console.log("now checking");
+						setUpdateStatus("Checking for updates...");
+
+						break;
+					case "updateAvailable":
+						localStorage.removeItem("usertoken");
+						history.push("/login");
+
+						ds.checkUpdate(true);
+						ds.isDownloading(true);
+						setNeedUpdate(true);
+						setUpdateInfo(obj);
+						setUpdateStatus("Found Updates!");
+						console.log(obj);
+						console.log("Found update");
+
+						break;
+					case "updateNotAvailable":
+						localStorage.removeItem("usertoken");
+						history.push("/login");
+
+						setUpdateStatus("Up to Date!");
+						setNeedUpdate(false);
+						console.log(obj);
+						console.log("Not available update");
+
+						break;
+					case "downloadInfo":
+						setDownloadValues(obj.object);
+						setUpdateStatus("Downloading...");
+						setNeedUpdate(true);
+						if (parseInt(obj.object.percentage) >= 99) {
+							ds.willRestart(true);
+						}
+
+						break;
+					case "downloadFinish":
+						setUpdateStatus("Download Finished!");
+						setNeedUpdate(true);
+						setFinishedDownload(true);
+						ds.isDownloading(false);
+						if (updateState) {
+							window.ipcRenderer.send("reply-message", "installNow");
+						} else {
+							window.ipcRenderer.send("reply-message", "installLater");
+						}
+
+						console.log("finished downloading");
+
+						break;
+					case "error":
+						localStorage.removeItem("usertoken");
+						history.push("/login");
+
+						setUpdateStatus("error");
+						ds.isDownloading(false);
+						console.log("Error Found in Update function in app.js line:83!");
+
+						break;
+					case "app-quit":
+						localStorage.removeItem("usertoken");
+						window.ipcRenderer.send("reply-message", "tokenRemoved");
+
+						break;
+					case "updateLaterSet":
+						setUpdateStatus("will Install Later...");
+						console.log("update set to later!");
+
+						break;
+
+					default:
+						break;
+				}
 			}
-			switch (obj.state) {
-				case "app-start":
-					console.log("starting...");
-					setUpdateStatus("Starting...");
-
-					break;
-				case "checking":
-					console.log("now checking");
-					setUpdateStatus("Checking for updates...");
-
-					break;
-				case "updateAvailable":
-					localStorage.removeItem("usertoken");
-					history.push("/login");
-
-					ds.checkUpdate(true);
-					ds.isDownloading(true);
-					setNeedUpdate(true);
-					setUpdateInfo(obj);
-					setUpdateStatus("Found Updates!");
-					console.log(obj);
-					console.log("Found update");
-
-					break;
-				case "updateNotAvailable":
-					localStorage.removeItem("usertoken");
-					history.push("/login");
-
-					setUpdateStatus("Up to Date!");
-					setNeedUpdate(false);
-					console.log(obj);
-					console.log("Not available update");
-
-					break;
-				case "downloadInfo":
-					setDownloadValues(obj.object);
-					setUpdateStatus("Downloading...");
-					setNeedUpdate(true);
-					if (parseInt(obj.object.percentage) >= 99) {
-						ds.willRestart(true);
-					}
-
-					break;
-				case "downloadFinish":
-					setUpdateStatus("Download Finished!");
-					setNeedUpdate(true);
-					setFinishedDownload(true);
-					ds.isDownloading(false);
-					if (updateState) {
-						window.ipcRenderer.send("reply-message", "installNow");
-					} else {
-						window.ipcRenderer.send("reply-message", "installLater");
-					}
-
-					console.log("finished downloading");
-
-					break;
-				case "error":
-					localStorage.removeItem("usertoken");
-					history.push("/login");
-
-					setUpdateStatus("error");
-					ds.isDownloading(false);
-					console.log("Error Found in Update function in app.js line:83!");
-
-					break;
-				case "app-quit":
-					localStorage.removeItem("usertoken");
-					window.ipcRenderer.send("reply-message", "tokenRemoved");
-
-					break;
-				case "updateLaterSet":
-					setUpdateStatus("will Install Later...");
-					console.log("update set to later!");
-
-					break;
-
-				default:
-					break;
-			}
-		}
-	});
+		});
+	} catch (error) {
+		console.log(error);
+	}
 	if (userAgent.indexOf(" electron/") > -1) {
 		//get user-agent part where it has electron in it as the app name to avoid someone connecting from chrome,postman,etc...
 		return (
@@ -216,6 +222,8 @@ function App() {
 
 				<Switch>
 					<Route exact path="/" component={Home} />
+					<Route path="/employee/:id" component={Employee} />
+					<Route path="/wharehouse/:id/history" component={WharehouseItem} />
 					<Route component={Default} />
 				</Switch>
 			</div>

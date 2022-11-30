@@ -109,16 +109,20 @@ function createWindow() {
 	Menu.setApplicationMenu(menu);
 
 	const sendStatus = (text, Obj, state) => {
-		if (win) {
-			log.info(text);
-			let status = {
-				text: text,
-				state: state,
-				object: Obj,
-			};
-			if (!closing) {
-				win.webContents.send("message", status);
+		try {
+			if (win) {
+				log.info(text);
+				let status = {
+					text: text,
+					state: state,
+					object: Obj,
+				};
+				if (!closing) {
+					win.webContents.send("message", status);
+				}
 			}
+		} catch (error) {
+			log.info(error);
 		}
 	};
 	//for windows shutdown but is bugged in electron itself check docs.

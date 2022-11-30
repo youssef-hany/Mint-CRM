@@ -1,7 +1,19 @@
 .inputField {
+	display: flex;
+	flex-direction: row;
 	width: 21%;
 }
 .alertContainer {
 	position: fixed;
 	z-index: 999;
+}
+.inputDate {
+	border: 0 !important;
+}
+.inputWorkers {
+	width: 5rem;
+}
+.wharehouseResupplyBadge {
+	right: 10px;
+	top: 0;
 }

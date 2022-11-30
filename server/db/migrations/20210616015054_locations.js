@@ -6,20 +6,17 @@ exports.up = function (knex, Promise) {
 		if (!exists) {
 			return knex.schema
 				.createTable("locations", (table) => {
-					table.increments("id");
-					table.integer("customer_id").notNullable();
-					table.text("name").notNullable();
+					table.uuid("id").primary();
+					table.uuid("customer_id").references("customers.id");
+					table.varchar("name").notNullable();
 					table.text("location").notNullable();
 					table.integer("size").notNullable();
-					table.text("file_name");
+					table.varchar("file_name");
 					table.text("path");
 					table.timestamps(true, true);
 				})
 				.then(() => {
 					console.log("Created locations table.");
-					knex.raw(onUpdateTrigger("locations")).then(() => {
-						console.log("Created its update trigger");
-					});
 				});
 		}
 	});

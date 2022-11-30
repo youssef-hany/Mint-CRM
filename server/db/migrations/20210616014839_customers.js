@@ -6,16 +6,13 @@ exports.up = function (knex, Promise) {
 		if (!exists) {
 			return knex.schema
 				.createTable("customers", (table) => {
-					table.increments("id");
-					table.text("name").notNullable();
-					table.text("phone").notNullable();
+					table.uuid("id").primary();
+					table.varchar("name").notNullable();
+					table.varchar("phone").notNullable();
 					table.timestamps(true, true);
 				})
 				.then(() => {
 					console.log("Created customers table.");
-					knex.raw(onUpdateTrigger("customers")).then(() => {
-						console.log("Created its update trigger");
-					});
 				});
 		}
 	});

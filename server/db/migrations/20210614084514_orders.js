@@ -6,24 +6,23 @@ exports.up = function (knex, Promise) {
 		if (!exists) {
 			return knex.schema
 				.createTable("orders", (table) => {
-					table.increments("id");
+					table.uuid("id").primary();
 					table.integer("customer_id").notNullable();
-					table.text("name").notNullable();
-					table.text("phone").notNullable();
-					table.text("date").notNullable();
+					table.varchar("name").notNullable();
+					table.varchar("phone").notNullable();
+					table.varchar("date").notNullable();
 					table.integer("location_id").notNullable();
+					table.text("location").notNullable();
 					table.integer("size").notNullable();
 					table.integer("price").notNullable();
 					table.integer("cost");
-					table.text("start_time").notNullable();
-					table.text("end_time").notNullable();
+					table.varchar("start_time").notNullable();
+					table.varchar("end_time").notNullable();
+					table.integer("workers").notNullable();
 					table.timestamps(true, true);
 				})
 				.then(() => {
 					console.log("Created orders table.");
-					knex.raw(onUpdateTrigger("orders")).then(() => {
-						console.log("Created its update trigger");
-					});
 				});
 		}
 	});

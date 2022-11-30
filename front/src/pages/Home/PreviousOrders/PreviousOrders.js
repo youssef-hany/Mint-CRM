@@ -1,4 +1,5 @@
 import React from "react";
+import dateFormat from "dateformat";
 
 export default function PreviousOrders(props) {
 	let totalPrice = 0;
@@ -18,13 +19,12 @@ export default function PreviousOrders(props) {
 					Profit/Loss: {totalPrice - totalCost} EGP
 				</p>
 			</div>
-			<table className="table table-dark mt-3">
+			<table className="table table-dark mt-3 ">
 				<thead>
 					<tr>
-						<th scope="col">#</th>
 						{props.allOrders && props.allOrders.length
 							? Object.keys(props.allOrders[0]).map((key, idx) => {
-									if (key === "updated_at") {
+									if (key === "updated_at" || key === "customer_id" || key === "location_id") {
 										return null;
 									} else {
 										return (
@@ -43,19 +43,20 @@ export default function PreviousOrders(props) {
 								if (order) {
 									return (
 										<tr key={idx}>
-											<th scope="row">{idx}</th>
 											<td>{order.id}</td>
-											<td>{order.customer_id}</td>
 											<td>{order.name}</td>
 											<td>{order.phone}</td>
-											<td>{order.date}</td>
-											<td>{order.location_id}</td>
+											<td>{dateFormat(order.date.split("T")[0], "dd-mm-yyyy")}</td>
+											<td>
+												<textarea className="textAreaLoc form-control" disabled value={order.location}></textarea>
+											</td>
 											<td>{order.size}</td>
 											<td>{order.price}</td>
 											<td>{order.cost}</td>
 											<td>{order.start_time}</td>
 											<td>{order.end_time}</td>
-											<td>{order.created_at.split("T")[0]}</td>
+											<td>{order.workers}</td>
+											<td>{dateFormat(order.created_at.split("T")[0], "dd-mm-yyyy")}</td>
 										</tr>
 									);
 								} else {

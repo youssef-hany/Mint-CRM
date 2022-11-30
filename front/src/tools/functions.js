@@ -39,6 +39,48 @@ export const addCustomerLocation = (data) => {
 			return response.data;
 		});
 };
+export const addEmployee = (data) => {
+	return axios
+		.post(`http://${ipaddress}:${port}/newEmployee`, data, {
+			headers: {
+				"Content-Type": "multipart/form-data",
+			},
+		})
+		.then((response) => {
+			return response.data;
+		});
+};
+export const addWharehouseTransactionItem = (data) => {
+	return axios
+		.post(`http://${ipaddress}:${port}/addWharehouseTransactionItem`, {
+			data: data,
+		})
+		.then((response) => {
+			return response.data;
+		});
+};
+export const updateEmployee = (data) => {
+	return axios
+		.post(`http://${ipaddress}:${port}/updateEmployee`, data, {
+			headers: {
+				"Content-Type": "multipart/form-data",
+			},
+		})
+		.then((response) => {
+			return response.data;
+		});
+};
+export const addPeriodToEmployee = (data) => {
+	return axios
+		.post(`http://${ipaddress}:${port}/addPeriodToEmployee`, data, {
+			headers: {
+				"Content-Type": "multipart/form-data",
+			},
+		})
+		.then((response) => {
+			return response.data;
+		});
+};
 export const uploadPDF = (data) => {
 	return axios
 		.post(`http://${ipaddress}:${port}/uploadpdf`, data, {

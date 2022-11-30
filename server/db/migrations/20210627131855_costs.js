@@ -6,18 +6,16 @@ exports.up = function (knex, Promise) {
 		if (!exists) {
 			return knex.schema
 				.createTable("costs", (table) => {
-					table.increments("id");
-					table.text("name").notNullable();
-					table.text("date").notNullable();
+					table.uuid("id").primary();
+					table.varchar("name").notNullable();
+					table.varchar("date").notNullable();
+					table.uuid("wharehouse_id").references("wharehouse.id").nullable();
 					table.integer("quantity").notNullable();
-					table.integer("cost").notNullable();
+					table.integer("total").notNullable();
 					table.timestamps(true, true);
 				})
 				.then(() => {
 					console.log("Created costs table.");
-					knex.raw(onUpdateTrigger("costs")).then(() => {
-						console.log("Created its update trigger");
-					});
 				});
 		}
 	});

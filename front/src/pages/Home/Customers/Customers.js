@@ -1,3 +1,4 @@
+import dateFormat from "dateformat";
 import React, { useState } from "react";
 import "./Customers.css";
 export default function Customers(props) {
@@ -55,7 +56,7 @@ export default function Customers(props) {
 	let totalCost = 0;
 
 	return (
-		<div className="container-fluid mt-5">
+		<div className="mt-5">
 			<input
 				id="inputName"
 				list="customers"
@@ -237,18 +238,24 @@ export default function Customers(props) {
 										<span className="m-5"></span>Profit/Loss: {totalPrice - totalCost} EGP
 									</p>
 
-									<table class="table table-dark ">
+									<table className="table table-dark ">
 										<thead>
 											<tr>
 												<th scope="col">#</th>
 												{allOrders && allOrders.length
 													? Object.keys(allOrders[0]).map((key) => {
-															if (key !== "created_at" && key !== "updated_at")
+															if (
+																key !== "created_at" &&
+																key !== "updated_at" &&
+																key !== "location_id" &&
+																key !== "customer_id"
+															) {
 																return (
 																	<th scope="col" key={key}>
 																		{key}
 																	</th>
 																);
+															}
 													  })
 													: ""}
 												<th scope="col">Update</th>
@@ -262,23 +269,27 @@ export default function Customers(props) {
 																<tr>
 																	<th scope="row">{idx + 1}</th>
 																	<td>{order.id}</td>
-																	<td>{order.customer_id}</td>
 																	<td>{order.name}</td>
 																	<td>{order.phone}</td>
-																	<td>{order.date}</td>
-																	<td>{order.location_id}</td>
+																	<td>{dateFormat(order.date.split("T")[0], "dd-mm-yyyy")}</td>
+																	<textarea
+																		className="textAreaLoc mt-2 form-control"
+																		disabled
+																		value={order.location}
+																	></textarea>
 																	<td>{order.size}</td>
 																	<td>{order.price}</td>
-																	<td>
+																	<td className="costCol">
 																		<input
 																			name="tableCost"
-																			className="w-100"
+																			className="inputCost"
 																			defaultValue={order.cost}
 																			onChange={props.onChange}
 																		></input>
 																	</td>
 																	<td>{order.start_time}</td>
 																	<td>{order.end_time}</td>
+																	<td>{order.workers}</td>
 																	<td>
 																		<button
 																			className="btn btn-outline-warning"

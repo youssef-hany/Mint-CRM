@@ -1,13 +1,14 @@
 const knex = require("knex");
-
+const dotenv = require("dotenv");
+dotenv.config();
 const db = knex({
 	client: "pg",
 	connection: {
-		host: "localhost",
-		port: "3004",
-		user: "postgres",
-		password: "1111",
-		database: "mintcrm",
+		host: process.env.DB_HOST,
+		port: process.env.DB_PORT,
+		user: process.env.DB_USER,
+		password: process.env.DB_PASS,
+		database: process.env.DB_NAME,
 	},
 });
 

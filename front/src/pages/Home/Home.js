@@ -9,6 +9,8 @@ import {
 	removePDF,
 	updateCost,
 	addNewCost,
+	addEmployee,
+	addWharehouseTransactionItem,
 } from "../../tools/functions";
 import HttpService from "../../tools/http-service/http-service";
 import "./Home.css";
@@ -18,9 +20,23 @@ import Customers from "./Customers/Customers";
 import PreviousOrders from "./PreviousOrders/PreviousOrders";
 import ManageCosts from "./ManageCosts/ManageCosts";
 import NewOrders from "./NewOrders/NewOrders";
+import Employees from "./Employees/Employees";
+import { LoaderSpinner } from "../../tools/utils/icons";
+import Wharehouse from "./Wharehouse/Wharehouse";
 
 let httpService = new HttpService();
-
+const initialEmployeeToAdd = {
+	name: "",
+	phone: "",
+	details: "",
+	employeePosition: "",
+	isInHouse: false,
+	status: "",
+	profileImage: "",
+	from: "",
+	to: "",
+	file: [],
+};
 export class Home extends Component {
 	_isMounted = false;
 
@@ -42,51 +58,47 @@ export class Home extends Component {
 			startTime: "",
 			endTime: "",
 			allCustomers: [],
+			allEmployees: [],
+			allWharehouse: [],
 			allOrders: [],
 			customerLocations: [],
 			inputLocation: "",
 			inputSize: "",
 			inputPrice: "",
+			inputWorkers: "",
 			tableCost: "",
 			orderCustomer: {},
 			costName: "",
 			costDate: "",
 			costQuantity: "",
 			costAmount: "",
-			appointments: [
-				// {
-				// 	Id: 3,
-				// 	Subject: "",
-				// 	StartTime: new Date(2021, 5, 19, 9, 0),
-				// 	EndTime: new Date(2021, 5, 20, 10, 0),
-				// 	IsAllDay: false,
-				// },
-				// {
-				// 	Id: 4,
-				// 	Subject: "",
-				// 	StartTime: new Date(2021, 5, 17, 9, 0),
-				// 	EndTime: new Date(2021, 5, 17, 10, 0),
-				// 	IsAllDay: false,
-				// },
-			],
-
-			spinner: (
-				<div className="Loader">
-					<Loader type="TailSpin" color="#7a7a7a" height={60} width={60} />
-				</div>
-			),
+			wharehouseItemCheck: false,
+			alertAmount: "",
+			allLocations: [],
+			appointments: [],
+			spinner: <LoaderSpinner />,
 			load: false,
+			wharehouseItemsNeedResupply: 0,
+			costWharehouseItem: "",
+			employeeToAdd: initialEmployeeToAdd,
 		};
 
 		this.onChange = this.onChange.bind(this);
 		this.AddOrder = this.AddOrder.bind(this);
 		this.AddCustomer = this.AddCustomer.bind(this);
+		this.AddEmployee = this.AddEmployee.bind(this);
+		this.setEmployeeToAdd = this.setEmployeeToAdd.bind(this);
 		this.GetAllCustomers = this.GetAllCustomers.bind(this);
+		this.GetAllEmployees = this.GetAllEmployees.bind(this);
+		this.GetAllWharehouse = this.GetAllWharehouse.bind(this);
+		this.setWharehouseItem = this.setWharehouseItem.bind(this);
 		this.GetAllOrders = this.GetAllOrders.bind(this);
 		this.UploadPDF = this.UploadPDF.bind(this);
 		this.RemovePDF = this.RemovePDF.bind(this);
 		this.handleFile = this.handleFile.bind(this);
 		this.GetCosts = this.GetCosts.bind(this);
+		this.AddNewCost = this.AddNewCost.bind(this);
+		this.getAllLocations = this.getAllLocations.bind(this);
 	}
 
 	componentDidMount() {
@@ -94,16 +106,29 @@ export class Home extends Component {
 		if (this._isMounted) {
 			this.GetAllOrders();
 			this.GetAllCustomers();
+			this.GetAllCustomers();
+			this.GetAllWharehouse();
 			this.GetCosts();
+			this.getAllLocations();
 		}
 	}
 	componentWillUnmount() {
 		this._isMounted = false;
 	}
 
-	onChange = (e) => {
-		this.setState({ [e.target.name]: e.target.value });
-		if (e.target.name === "name") {
+	onChange = (e, name) => {
+		if (e.target && e.target.name) {
+			this.setState({ [e.target.name]: e.target.value });
+			if (e.target.name === "wharehouseItemCheck") {
+				this.setState({ wharehouseItemCheck: e.currentTarget.checked });
+			}
+			if (this.state.costWharehouseItem.name) {
+				this.setState({ wharehouseItemCheck: true });
+			}
+		} else {
+			this.setState({ [name]: e });
+		}
+		if (e.target && e.target.name === "name") {
 			this.state.allCustomers.map((customer) => {
 				if (customer.name.toLowerCase() === e.target.value.toLowerCase()) {
 					this.setState({ orderCustomer: customer });
@@ -123,8 +148,11 @@ export class Home extends Component {
 		this.setState({ load: true });
 		let location_id = "";
 		if (this.state.inputLocation) {
-			this.state.customerLocations.map((location, index) => {
-				if (this.state.inputLocation === location.location) {
+			this.state.customerLocations.forEach((location, index) => {
+				if (
+					this.state.inputLocation.replace(/\r?\n|\r/g, "").replace(/ /g, "") ===
+					location.location.replace(/\r?\n|\r/g, "").replace(/ /g, "")
+				) {
 					location_id = location.id;
 				}
 			});
@@ -134,8 +162,10 @@ export class Home extends Component {
 			phone: this.state.orderCustomer.phone,
 			date: this.state.date,
 			location_id: location_id,
+			location: this.state.inputLocation,
 			size: this.state.inputSize,
 			price: this.state.inputPrice,
+			workers: this.state.inputWorkers,
 			startTime: this.state.startTime,
 			endTime: this.state.endTime,
 		};
@@ -144,6 +174,8 @@ export class Home extends Component {
 			this.state.date &&
 			this.state.inputSize &&
 			this.state.inputPrice &&
+			this.state.inputLocation &&
+			this.state.inputWorkers &&
 			this.state.startTime &&
 			this.state.endTime &&
 			!this.state.orderCustomer.phone
@@ -166,16 +198,27 @@ export class Home extends Component {
 			!location_id ||
 			!this.state.inputSize ||
 			!this.state.inputPrice ||
+			!this.state.inputWorkers ||
 			!this.state.startTime ||
 			!this.state.endTime
 		) {
+			// console.log(
+			// 	this.state.name,
+			// 	this.state.orderCustomer.phone,
+			// 	this.state.date,
+			// 	location_id,
+			// 	this.state.inputSize,
+			// 	this.state.inputPrice,
+			// 	this.state.inputWorkers,
+			// 	this.state.startTime,
+			// 	this.state.endTime
+			// );
 			e.preventDefault();
 			this.setState({ load: false, error: "[F] Please fill out all the fields to submit!" }, () => {
 				window.setTimeout(() => {
 					this.setState({ error: "", success: "" });
 				}, 8000);
 			});
-			console.log(this.state.orderCustomer.phone);
 
 			return;
 		}
@@ -285,6 +328,123 @@ export class Home extends Component {
 			}
 		});
 	};
+
+	setEmployeeToAdd = (employee) => {
+		this.setState({
+			employeeToAdd: employee,
+		});
+	};
+
+	AddEmployee = (employee, e) => {
+		e.preventDefault();
+		this.setState({ load: true });
+		const formdata = new FormData();
+		for (let fileIndex = 0; fileIndex < employee.file.length; fileIndex++) {
+			employee["file" + fileIndex] = employee.file.item(fileIndex);
+		}
+		for (var key in employee) {
+			formdata.append(key, employee[key]);
+		}
+		addEmployee(formdata).then((res) => {
+			if (res) {
+				if (res.success) {
+					this.setState(
+						{
+							success: res.success,
+							load: false,
+						},
+						() => {
+							setTimeout(() => {
+								this.setState({ error: "", success: "" });
+							}, 6000);
+						}
+					);
+					this.GetAllEmployees();
+					this.setEmployeeToAdd({});
+				} else {
+					this.setState(
+						{
+							error: res.error,
+							load: false,
+						},
+						() => {
+							setTimeout(() => {
+								this.setState({ error: "", success: "" });
+							}, 6000);
+						}
+					);
+				}
+			} else {
+				this.setState(
+					{
+						error: "[F] No response from database. Check connection...",
+						load: false,
+					},
+					() => {
+						setTimeout(() => {
+							this.setState({ error: "", success: "" });
+						}, 6000);
+					}
+				);
+			}
+		});
+	};
+
+	addWharehouseTransactionItem = (wharehouseItem, e) => {
+		e.preventDefault();
+		this.setState({ load: true });
+		let approveTransaction = true;
+		if (wharehouseItem.alert_at >= wharehouseItem.available_quantity) {
+			approveTransaction = window.confirm(
+				`There are only ${wharehouseItem.available_quantity} units left are you sure you want to continue?`
+			);
+		}
+		if (approveTransaction) {
+			addWharehouseTransactionItem(wharehouseItem).then((res) => {
+				if (res) {
+					if (res.success) {
+						this.setState(
+							{
+								success: res.success,
+								load: false,
+							},
+							() => {
+								setTimeout(() => {
+									this.setState({ error: "", success: "" });
+								}, 6000);
+							}
+						);
+						this.GetAllWharehouse();
+					} else {
+						this.setState(
+							{
+								error: res.error,
+								load: false,
+							},
+							() => {
+								setTimeout(() => {
+									this.setState({ error: "", success: "" });
+								}, 6000);
+							}
+						);
+					}
+				} else {
+					this.setState(
+						{
+							error: "[F] No response from database. Check connection...",
+							load: false,
+						},
+						() => {
+							setTimeout(() => {
+								this.setState({ error: "", success: "" });
+							}, 6000);
+						}
+					);
+				}
+			});
+		}
+	};
+
 	AddCustomerLocation = (data) => {
 		var promise = new Promise((resolve, reject) => {
 			this.setState({ load: true });
@@ -332,20 +492,30 @@ export class Home extends Component {
 		return promise;
 	};
 
+	setWharehouseItem = (item) => {
+		this.setState({
+			costWharehouseItem: item,
+		});
+	};
+
 	AddNewCost = (e) => {
 		this.setState({ load: true });
 		e.preventDefault();
 		let data = {
-			name: this.state.costName,
+			name: this.state.costName || this.state.costWharehouseItem.name,
 			date: this.state.costDate,
 			quantity: this.state.costQuantity,
-			cost: this.state.costAmount,
+			amount: this.state.costAmount,
+			wharehouseItemCheck: this.state.wharehouseItemCheck,
+			alert_at: this.state.alertAmount || this.state.costWharehouseItem.alert_at,
+			id: this.state.costWharehouseItem.id,
 		};
 		var promise = new Promise((resolve, reject) => {
 			addNewCost(data).then((response) => {
 				if (response) {
 					if (response.success) {
 						this.GetCosts();
+						this.GetAllWharehouse();
 						this.setState(
 							{
 								success: response.success,
@@ -353,6 +523,8 @@ export class Home extends Component {
 								costDate: "",
 								costQuantity: "",
 								costAmount: "",
+								wharehouseItemCheck: false,
+								alertAmount: "",
 								load: false,
 							},
 							() => {
@@ -437,6 +609,7 @@ export class Home extends Component {
 		});
 		return promise;
 	};
+
 	handleFile = (e) => {
 		const { files } = e.currentTarget;
 		if (files) {
@@ -445,6 +618,7 @@ export class Home extends Component {
 			});
 		}
 	};
+
 	RemovePDF = (data, e) => {
 		this.setState({ load: true });
 		e.preventDefault();
@@ -492,6 +666,7 @@ export class Home extends Component {
 			}
 		});
 	};
+
 	UploadPDF = (data, e) => {
 		this.setState({ load: true });
 		const formdata = new FormData();
@@ -543,6 +718,7 @@ export class Home extends Component {
 			}
 		});
 	};
+
 	UpdateCost = (order, e) => {
 		this.setState({ load: true });
 		let data = {
@@ -552,6 +728,7 @@ export class Home extends Component {
 		updateCost(data).then((res) => {
 			if (res) {
 				if (res.success) {
+					this.GetAllOrders();
 					this.setState(
 						{
 							success: res.success,
@@ -591,6 +768,7 @@ export class Home extends Component {
 			}
 		});
 	};
+
 	GetAllCustomers = () => {
 		this.setState({ load: true });
 
@@ -604,17 +782,63 @@ export class Home extends Component {
 		});
 	};
 
-	GetAllOrders = () => {
+	GetAllEmployees = () => {
 		this.setState({ load: true });
-
-		httpService.GetOrders().then((data) => {
+		return httpService.GetEmployees().then((data) => {
 			if (this._isMounted) {
 				this.setState({
-					allOrders: data.orders,
+					allEmployees: data.employees,
 					load: false,
 				});
 			}
 		});
+	};
+
+	GetAllWharehouse = () => {
+		this.setState({ load: true });
+		return httpService.GetWharehouse().then((data) => {
+			if (this._isMounted) {
+				let resupplyIndex = 0;
+				data.wharehouse.forEach((item) => {
+					if (parseInt(item.available_quantity) <= parseInt(item.alert_at)) {
+						resupplyIndex += 1;
+					}
+				});
+				this.setState({
+					allWharehouse: data.wharehouse,
+					wharehouseItemsNeedResupply: resupplyIndex,
+					load: false,
+				});
+			}
+		});
+	};
+
+	GetAllOrders = () => {
+		if (this._isMounted) {
+			this.setState({ load: true });
+
+			httpService.GetOrders().then((data) => {
+				if (this._isMounted) {
+					this.setState({
+						allOrders: data.orders,
+						load: false,
+					});
+				}
+			});
+		}
+	};
+	getAllLocations = () => {
+		if (this._isMounted) {
+			this.setState({ load: true });
+			httpService.GetLocations().then((data) => {
+				if (this._isMounted) {
+					this.setState({
+						allLocations: data.locations,
+						load: false,
+					});
+				}
+			});
+		}
 	};
 	GetCosts = () => {
 		this.setState({ load: true });
@@ -631,7 +855,7 @@ export class Home extends Component {
 		const { allOrders, allCosts } = this.state;
 		return (
 			<div>
-				<div className="container row mx-auto">
+				<div className="container-fluid row mx-auto">
 					<div className="mt-2 mx-auto">
 						{this.state.error ? (
 							<div className="container alertContainer text-center alert alert-danger fade show  ">
@@ -648,7 +872,7 @@ export class Home extends Component {
 							""
 						)}
 					</div>
-					<div className="mx-auto container mt-3">{this.state.load ? this.state.spinner : <div></div>}</div>
+					<div className="mx-auto container mt-3">{this.state.load ? this.state.spinner : null}</div>
 
 					<div className="col-sm-12 w-100 mt-5">
 						<nav className="">
@@ -696,6 +920,33 @@ export class Home extends Component {
 									aria-selected="false"
 								>
 									Schedule
+								</a>
+								<a
+									className="nav-item nav-link"
+									id="nav-employees-tab"
+									data-toggle="tab"
+									href="#nav-employees"
+									role="tab"
+									aria-controls="nav-employees"
+									aria-selected="false"
+								>
+									Employees
+								</a>
+								<a
+									className="nav-item nav-link position-relative"
+									id="nav-wharehouse-tab"
+									data-toggle="tab"
+									href="#nav-wharehouse"
+									role="tab"
+									aria-controls="nav-wharehouse"
+									aria-selected="false"
+								>
+									{this.state.wharehouseItemsNeedResupply > 0 && (
+										<span className="badge badge-warning position-absolute wharehouseResupplyBadge">
+											{this.state.wharehouseItemsNeedResupply}
+										</span>
+									)}
+									Wharehouse
 								</a>
 								<a
 									className="nav-item nav-link"
@@ -776,6 +1027,7 @@ export class Home extends Component {
 									inputLocation={this.state.inputLocation}
 									inputSize={this.state.inputSize}
 									inputPrice={this.state.inputPrice}
+									inputWorkers={this.state.inputWorkers}
 									allCustomers={this.state.allCustomers}
 									orderCustomer={this.state.orderCustomer}
 								/>
@@ -796,6 +1048,30 @@ export class Home extends Component {
 									<Inject services={[Day, Week, WorkWeek, Month, Agenda]} />
 								</ScheduleComponent>
 							</div>
+
+							<div className="tab-pane fade" id="nav-employees" role="tabpanel" aria-labelledby="nav-employees-tab">
+								{/* Employees */}
+								<Employees
+									setState={this.setState}
+									allEmployees={this.state.allEmployees}
+									GetAllEmployees={this.GetAllEmployees}
+									AddEmployee={this.AddEmployee}
+									employee={this.state.employeeToAdd}
+									setEmployee={this.setEmployeeToAdd}
+								/>
+							</div>
+
+							<div className="tab-pane fade" id="nav-wharehouse" role="tabpanel" aria-labelledby="nav-wharehouse-tab">
+								{/* Whrehouse */}
+								<Wharehouse
+									setState={this.setState}
+									allWharehouse={this.state.allWharehouse}
+									GetAllWharehouse={this.GetAllWharehouse}
+									addWharehouseTransactionItem={this.addWharehouseTransactionItem}
+									allCustomers={this.state.allCustomers}
+								/>
+							</div>
+
 							<div className="tab-pane fade" id="nav-customers" role="tabpanel" aria-labelledby="nav-customers-tab">
 								{/* Customers */}
 								<Customers
@@ -812,6 +1088,7 @@ export class Home extends Component {
 									RemovePDF={this.RemovePDF}
 								/>
 							</div>
+
 							<div className="tab-pane fade" id="nav-mngcost" role="tabpanel" aria-labelledby="nav-mngcost-tab">
 								{/* Manage Costs */}
 								<ManageCosts
@@ -822,6 +1099,11 @@ export class Home extends Component {
 									costDate={this.state.costDate}
 									costQuantity={this.state.costQuantity}
 									costAmount={this.state.costAmount}
+									wharehouseItemCheck={this.state.wharehouseItemCheck}
+									alertAmount={this.state.alertAmount}
+									allWharehouse={this.state.allWharehouse}
+									wharehouseItem={this.state.costWharehouseItem}
+									setWharehouseItem={this.setWharehouseItem}
 								/>
 							</div>
 						</div>

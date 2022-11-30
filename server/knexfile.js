@@ -1,12 +1,14 @@
+const dotenv = require("dotenv");
+dotenv.config();
 module.exports = {
 	development: {
-		client: "pg",
+		client: "mysql",
 		connection: {
-			host: "localhost",
-			port: "3004",
-			user: "postgres",
-			password: "1111",
-			database: "mintcrm",
+			host: process.env.DB_HOST,
+			port: process.env.DB_PORT,
+			user: process.env.DB_USER,
+			password: process.env.DB_PASS,
+			database: process.env.DB_NAME,
 		},
 		migrations: {
 			directory: __dirname + "/db/migrations",
@@ -16,13 +18,13 @@ module.exports = {
 		},
 	},
 	production: {
-		client: "pg",
+		client: "mysql",
 		connection: {
-			host: "localhost",
-			port: "3004",
-			user: "postgres",
-			password: "1111",
-			database: "mintcrm",
+			host: process.env.DB_HOST,
+			port: process.env.DB_PORT,
+			user: process.env.DB_USER,
+			password: process.env.DB_PASS,
+			database: process.env.DB_NAME,
 		},
 		migrations: {
 			directory: __dirname + "/db/migrations",
@@ -31,11 +33,4 @@ module.exports = {
 			directory: __dirname + "/db/seeds",
 		},
 	},
-	onUpdateTrigger: (table) =>
-		`
-    CREATE TRIGGER ${table}_updated_at
-    BEFORE UPDATE ON ${table}
-    FOR EACH ROW
-    EXECUTE PROCEDURE on_update_timestamp();
-    `,
 };
