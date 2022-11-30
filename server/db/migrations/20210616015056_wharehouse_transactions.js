@@ -6,11 +6,11 @@ exports.up = function (knex, Promise) {
 		if (!exists) {
 			return knex.schema
 				.createTable("wharehouse_transactions", (table) => {
-					table.uuid("id").primary();
+					table.increments("id").primary();
 					table.text("comment");
 					table.integer("quantity_taken");
-					table.uuid("wharehouse_item_id").references("wharehouse.id");
-					table.uuid("customer_id").references("customers.id");
+					table.integer("wharehouse_item_id").unsigned().references("wharehouse.id");
+					table.integer("customer_id").unsigned().references("customers.id");
 					table.timestamps(true, true);
 				})
 				.then(() => {

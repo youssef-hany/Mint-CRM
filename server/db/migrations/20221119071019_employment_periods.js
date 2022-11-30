@@ -6,8 +6,8 @@ exports.up = function (knex, Promise) {
 		if (!exists) {
 			return knex.schema
 				.createTable("employment_periods", (table) => {
-					table.uuid("id").primary();
-					table.uuid("employee_id").references("employees.id").notNullable();
+					table.increments("id").primary();
+					table.integer("employee_id").unsigned().references("employees.id").notNullable();
 					table.text("period_details");
 					table.varchar("status");
 					table.boolean("isInHouse");

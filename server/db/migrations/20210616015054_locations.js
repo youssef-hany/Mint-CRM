@@ -6,8 +6,8 @@ exports.up = function (knex, Promise) {
 		if (!exists) {
 			return knex.schema
 				.createTable("locations", (table) => {
-					table.uuid("id").primary();
-					table.uuid("customer_id").references("customers.id");
+					table.increments("id").primary();
+					table.integer("customer_id").unsigned().notNullable().references("customers.id");
 					table.varchar("name").notNullable();
 					table.text("location").notNullable();
 					table.integer("size").notNullable();

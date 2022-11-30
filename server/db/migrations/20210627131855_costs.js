@@ -6,10 +6,10 @@ exports.up = function (knex, Promise) {
 		if (!exists) {
 			return knex.schema
 				.createTable("costs", (table) => {
-					table.uuid("id").primary();
+					table.increments("id").primary();
 					table.varchar("name").notNullable();
 					table.varchar("date").notNullable();
-					table.uuid("wharehouse_id").references("wharehouse.id").nullable();
+					table.integer("wharehouse_id").unsigned().references("wharehouse.id").nullable();
 					table.integer("quantity").notNullable();
 					table.integer("total").notNullable();
 					table.timestamps(true, true);

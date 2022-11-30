@@ -6,8 +6,8 @@ exports.up = function (knex, Promise) {
 		if (!exists) {
 			return knex.schema
 				.createTable("employment_assets", (table) => {
-					table.uuid("id").primary();
-					table.uuid("employment_period_id").references("employment_periods.id").notNullable();
+					table.increments("id").primary();
+					table.integer("employment_period_id").unsigned().references("employment_periods.id").notNullable();
 					table.varchar("file_name");
 					table.text("path");
 					table.timestamps(true, true);

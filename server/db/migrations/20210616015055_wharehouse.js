@@ -6,7 +6,7 @@ exports.up = function (knex, Promise) {
 		if (!exists) {
 			return knex.schema
 				.createTable("wharehouse", (table) => {
-					table.uuid("id").primary();
+					table.increments("id").primary();
 					table.integer("available_quantity").notNullable();
 					table.integer("alert_at").notNullable();
 					table.timestamps(true, true);

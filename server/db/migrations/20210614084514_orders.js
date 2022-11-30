@@ -6,7 +6,7 @@ exports.up = function (knex, Promise) {
 		if (!exists) {
 			return knex.schema
 				.createTable("orders", (table) => {
-					table.uuid("id").primary();
+					table.increments("id").primary();
 					table.integer("customer_id").notNullable();
 					table.varchar("name").notNullable();
 					table.varchar("phone").notNullable();
