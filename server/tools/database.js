@@ -2,7 +2,7 @@ const knex = require("knex");
 const dotenv = require("dotenv");
 dotenv.config();
 const db = knex({
-	client: "pg",
+	client: "mysql",
 	connection: {
 		host: process.env.DB_HOST,
 		port: process.env.DB_PORT,
